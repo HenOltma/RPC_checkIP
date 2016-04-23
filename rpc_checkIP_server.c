@@ -9,12 +9,46 @@
 int *
 checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
 {
-	static int  result;
+	static int  result;      
+        char* ip;
+        int prefix;
+        char* err;
+        
+        printf("Got Client request.\n");
+        printf("Checking IP %s.\n", *argp);
 
 	/*
 	 * insert server code here
-	 */
-        result = 1;
-        printf("Got Client request.\n");
+	 */    
+        result = validateIPv4(*argp, ip, &prefix);
+        if(result != 0)
+            return &result;
+
+        result = 0;        
 	return &result;
+}
+int validateIPv4(char* address, char* ip, int* prefix_int){
+
+        char* prefix;
+        
+        ip = strtok(address,"/");
+	prefix = strtok(NULL,"");
+        
+        printf("ip: %s \n", ip);
+        printf("netmask: %s \n", prefix);
+        
+	if(prefix == NULL){
+
+		printf("invalid netmask!\n");
+		return 1;
+	}
+
+	*prefix_int = atoi(prefix);
+    
+	if(*prefix_int >32 || *prefix_int <1){
+
+		printf("invalid prefix!\n");
+		return 2;
+	}
+        return 0;
 }

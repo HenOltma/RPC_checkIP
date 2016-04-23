@@ -13,6 +13,7 @@ check_ip_1(char *host, ip_str *ip)
 	CLIENT *clnt;
 	int  *result_1;
 	ip_str  checkip_1_arg = *ip;
+        printf("%s\n", checkip_1_arg);
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, CHECK_IP, CHECK_IP_1, "udp");
