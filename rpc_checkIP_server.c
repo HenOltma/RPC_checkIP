@@ -14,6 +14,7 @@ checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
 	/*
 	 * insert server code here
 	 */
-
+        result = 1;
+        printf("Got Client request.\n");
 	return &result;
 }

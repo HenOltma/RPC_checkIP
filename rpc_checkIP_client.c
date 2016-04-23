@@ -8,11 +8,11 @@
 
 
 void
-check_ip_1(char *host)
+check_ip_1(char *host, ip_str *ip)
 {
 	CLIENT *clnt;
 	int  *result_1;
-	ip_str  checkip_1_arg;
+	ip_str  checkip_1_arg = *ip;
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, CHECK_IP, CHECK_IP_1, "udp");
@@ -36,12 +36,15 @@ int
 main (int argc, char *argv[])
 {
 	char *host;
+        ip_str  checkip_1_arg = argv[2];
 
-	if (argc < 2) {
+	if (argc < 3) {
 		printf ("usage: %s server_host\n", argv[0]);
 		exit (1);
 	}
 	host = argv[1];
-	check_ip_1 (host);
+        printf("host: %s\n", host);
+        printf("ip: %s\n", checkip_1_arg);
+	check_ip_1 (host, &checkip_1_arg);
 exit (0);
 }
