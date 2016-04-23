@@ -7,6 +7,7 @@
 #define _RPC_CHECKIP_H_RPCGEN
 
 #include <rpc/rpc.h>
+#include <math.h>
 
 
 #ifdef __cplusplus

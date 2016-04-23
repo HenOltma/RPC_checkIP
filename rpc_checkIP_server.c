@@ -5,6 +5,7 @@
  */
 
 #include "rpc_checkIP.h"
+#include <math.h>
 
 int *
 checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
@@ -30,25 +31,49 @@ checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
 int validateIPv4(char* address, char* ip, int* prefix_int){
 
         char* prefix;
-        
+        int ipv4[4];
+     
+
         ip = strtok(address,"/");
 	prefix = strtok(NULL,"");
         
         printf("ip: %s \n", ip);
         printf("netmask: %s \n", prefix);
+     
+        
         
 	if(prefix == NULL){
-
 		printf("invalid netmask!\n");
 		return 1;
 	}
-
-	*prefix_int = atoi(prefix);
-    
+        char *tmpStr;
+        tmpStr = strtok(address,".");
+        for(int i = 0; i < 4; i++){
+            if(tmpStr == NULL){
+                printf("invalid adress!\n");
+                return 3;
+            }
+            ipv4[i] = atoi(tmpStr);
+            tmpStr = strtok(NULL,".");
+        }
+        
+        printf("ip = %d.%d.%d.%d\n",ipv4[0],ipv4[1],ipv4[2],ipv4[3]);
+        
+        *prefix_int = atoi(prefix);    
 	if(*prefix_int >32 || *prefix_int <1){
-
-		printf("invalid prefix!\n");
-		return 2;
+            printf("invalid prefix!\n");
+            return 2;
 	}
+        int tmp1 = *prefix_int/8;
+        int maske[4] = {0,0,0,0};
+        for(int i = 0; i < tmp1; i++){
+            maske[i] = ipv4[i];
+        }
+        for(int i = 0; i != *prefix_int%8; i++){
+            if((ipv4[tmp1] - pow(2, 7-i)) > 0)
+                maske[tmp1] += pow(2, 7-i);
+        }
+        printf("mask = %d.%d.%d.%d\n",maske[0],maske[1],maske[2],maske[3]);
+        
         return 0;
 }
