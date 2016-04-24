@@ -11,3 +11,10 @@ to do list:
 	
 	Client
 	 - Validierung der übergebenen IPv4 Adresse
+
+return Values:
+
+0 - success
+1 - invalid subnetmask
+2 - invalid ip-address
+3 - invalid subnetmask && invalid ip-address

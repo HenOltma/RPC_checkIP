@@ -25,7 +25,9 @@ typedef char *ip_str;
 #define CHECKIP 1
 extern  int * checkip_1(ip_str *, CLIENT *);
 extern  int * checkip_1_svc(ip_str *, struct svc_req *);
-extern int validateIPv4(char* address, char* ip, int* prefix);
+extern int parseIPv4(char* address, uint32_t* clientIP, uint32_t* subnetmask);
+extern int validateIPv4Address(char* address, int ipv4[4]);
+extern int validateSubnetmask(int ipv4[4], int mask[4],char* prefix);
 extern int check_ip_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */

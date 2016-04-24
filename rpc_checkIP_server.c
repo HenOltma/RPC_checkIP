@@ -12,68 +12,84 @@ checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
 {
 	static int  result;      
         char* ip;
+        unsigned int clientIP;
+        uint32_t serverIP;
+        uint32_t subnetmask;
         int prefix;
-        char* err;
+        result = 0;
         
-        printf("Got Client request.\n");
-        printf("Checking IP %s.\n", *argp);
-
-	/*
-	 * insert server code here
-	 */    
-        result = validateIPv4(*argp, ip, &prefix);
-        if(result != 0)
-            return &result;
-
-        result = 0;        
+        printf("\n\nGot Client request:\t'Is %s in the server subnet?'\n\n", *argp);  
+        result = parseIPv4(*argp, &clientIP, &subnetmask);
+        
 	return &result;
 }
-int validateIPv4(char* address, char* ip, int* prefix_int){
-
-        char* prefix;
-        int ipv4[4];
-     
-
-        ip = strtok(address,"/");
-	prefix = strtok(NULL,"");
-        
-        printf("ip: %s \n", ip);
-        printf("netmask: %s \n", prefix);
-     
-        
-        
-	if(prefix == NULL){
-		printf("invalid netmask!\n");
-		return 1;
+// Validates Subnetmask. returns 0 on success. 1 on failure. 
+int validateSubnetmask(int ipv4[4], int maske[4],char* prefix){
+        if(prefix == NULL){
+            printf("no subnetmask! Please input the address 'x.x.x.x/subnetmask', x in range '0-255' and subnetmask in range '0-30'.\n");
+            return 1;
 	}
+        int prefix_int = atoi(prefix);
+    	if(prefix_int >30 || prefix_int <0){
+            printf("invalid subnetmask! Subnetmaskprefix has to be in the range of 0-30.\n");
+            return 1;
+	}
+        int tmp1 = prefix_int/8;
+        for(int i = 0; i < tmp1; i++){
+            maske[i] = ipv4[i];
+        }
+        for(int i = 0; i != prefix_int%8; i++){
+            if((ipv4[tmp1] - pow(2, 7-i)) > 0){
+                maske[tmp1] += pow(2, 7-i);
+            }
+        }
+        printf("subnetmask = %d.%d.%d.%d is valid.\n",maske[0],maske[1],maske[2],maske[3]);
+        return 0;
+}
+// Validates a IPv4 address. returns 0 on success. 2 on failure. 
+int validateIPv4Address(char* address, int ipv4[4]){
         char *tmpStr;
         tmpStr = strtok(address,".");
         for(int i = 0; i < 4; i++){
             if(tmpStr == NULL){
-                printf("invalid adress!\n");
-                return 3;
+                printf("invalid address! Address have to be of the following syntax: 'x.x.x.x/netmask'. x has to be between 0 and 255. netmask has to be between 0 and 30.\n");
+                return 2;
             }
             ipv4[i] = atoi(tmpStr);
+            if(ipv4[i] < 0 || ipv4[i] > 255){
+                printf("invalid address! Only numbers between 0 and 255 are allowed.\n");
+                return 2;
+            }
             tmpStr = strtok(NULL,".");
         }
         
-        printf("ip = %d.%d.%d.%d\n",ipv4[0],ipv4[1],ipv4[2],ipv4[3]);
-        
-        *prefix_int = atoi(prefix);    
-	if(*prefix_int >32 || *prefix_int <1){
-            printf("invalid prefix!\n");
-            return 2;
-	}
-        int tmp1 = *prefix_int/8;
-        int maske[4] = {0,0,0,0};
-        for(int i = 0; i < tmp1; i++){
-            maske[i] = ipv4[i];
-        }
-        for(int i = 0; i != *prefix_int%8; i++){
-            if((ipv4[tmp1] - pow(2, 7-i)) > 0)
-                maske[tmp1] += pow(2, 7-i);
-        }
-        printf("mask = %d.%d.%d.%d\n",maske[0],maske[1],maske[2],maske[3]);
-        
+        printf("ip = %d.%d.%d.%d is valid!\n",ipv4[0],ipv4[1],ipv4[2],ipv4[3]);
         return 0;
+}
+// Parses the string 'IPv4 address/subnet suffix' into unsigned 32 bit integer clientIP & subnetmask. Returns 0 on success or a error code on failure.
+int parseIPv4(char* address, unsigned int* clientIP, uint32_t* subnetmask){
+        char* ip;
+        char* prefix;
+        int ipv4[4] = {0,0,0,0};
+        int maske[4] = {0,0,0,0};
+        int returnValue;
+
+        //cuts the IPv4/Prefix into Parts.
+        ip = strtok(address,"/");
+	prefix = strtok(NULL,"");
+        
+        printf("ip:\t%s\n", ip);
+        printf("netmask:\t%s \n", prefix);
+
+        
+            unsigned char s1=0, s2=0, s3=0, s4=0;
+            printf("ip:\t%s\n", ip);
+            sscanf(ip,"%hhu.%hhu.%hhu.%hhu",&s1,&s2,&s3,&s4);
+            *clientIP = (s1<<24) | (s2<<16) | (s3<<8) | s4;
+            printf("clientIP - %u\n", *clientIP);        
+        
+        returnValue = validateIPv4Address(address, ipv4);
+        returnValue += validateSubnetmask(ipv4, maske, prefix);
+
+        return returnValue;
 }
