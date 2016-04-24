@@ -6,22 +6,39 @@
 
 #include "rpc_checkIP.h"
 #include <math.h>
+#include <arpa/inet.h>
 
 int *
 checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
 {
-	static int  result;      
-        char* ip;
-        unsigned int clientIP;
+	static int  result;   
+        uint32_t clientIP;
         uint32_t serverIP;
         uint32_t subnetmask;
-        int prefix;
         result = 0;
         
         printf("\n\nGot Client request:\t'Is %s in the server subnet?'\n\n", *argp);  
         result = parseIPv4(*argp, &clientIP, &subnetmask);
-        
-	return &result;
+        serverIP = rqstp->rq_xprt->xp_raddr.sin_addr.s_addr;
+	printf("server IP: %s\n",inet_ntoa(rqstp->rq_xprt->xp_raddr.sin_addr));
+        if(result == 0){
+            if(clientIP == serverIP){
+                printf("same server/client address");
+            }
+            else if(clientIP == subnetmask){
+                printf("netaddress\n");
+                result = 5;
+            }
+            else if(clientIP == (clientIP | (~ subnetmask))){
+                printf("broadcast address\n");
+                result = 6;
+            }
+            else if(!((clientIP & subnetmask) == (serverIP & subnetmask))){
+                result = 4;
+                printf("not in the same subnet.\n");
+            }
+        }
+        return &result;
 }
 // Validates Subnetmask. returns 0 on success. 1 on failure. 
 int validateSubnetmask(int ipv4[4], int maske[4],char* prefix){
@@ -78,18 +95,12 @@ int parseIPv4(char* address, unsigned int* clientIP, uint32_t* subnetmask){
         ip = strtok(address,"/");
 	prefix = strtok(NULL,"");
         
-        printf("ip:\t%s\n", ip);
-        printf("netmask:\t%s \n", prefix);
-
-        
-            unsigned char s1=0, s2=0, s3=0, s4=0;
-            printf("ip:\t%s\n", ip);
-            sscanf(ip,"%hhu.%hhu.%hhu.%hhu",&s1,&s2,&s3,&s4);
-            *clientIP = (s1<<24) | (s2<<16) | (s3<<8) | s4;
-            printf("clientIP - %u\n", *clientIP);        
-        
         returnValue = validateIPv4Address(address, ipv4);
         returnValue += validateSubnetmask(ipv4, maske, prefix);
+
+        // wandelt ip-address int array zu 32-bit int um.
+        *clientIP = ((unsigned char)ipv4[3] << 24) | ((unsigned char)ipv4[2] << 16) | ((unsigned char)ipv4[1] << 8) | (unsigned char)ipv4[0];
+        *subnetmask = ((unsigned char)maske[3] << 24) | ((unsigned char)maske[2] << 16) | ((unsigned char)maske[1] << 8) | (unsigned char)maske[0];
 
         return returnValue;
 }

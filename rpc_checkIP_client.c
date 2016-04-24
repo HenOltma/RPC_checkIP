@@ -49,18 +49,19 @@ void check_ip_1(char *host, ip_str *ip) {
  * Main
  */
 int main (int argc, char *argv[]) {
-	char *host;
-  ip_str ip_adress = argv[2];
+    char *host;
+    int result;
+    ip_str ip_adress = argv[2];
 
-	printf("Anzahl der Argumente: %d\n", argc);
+    printf("Anzahl der Argumente: %d\n", argc);
 
-	if (argc < 3) {
-		printf ("usage: %s: <client ip> <zu überprüfende adresse>\n", argv[0]);
-		exit (1);
-	}
-	host = argv[1];
-  printf("host: %s\n", host);
-  printf("ip: %s\n", ip_adress);
-	check_ip_1 (host, &ip_adress);
-	exit (0);
+    if (argc < 3) {
+            printf ("usage: %s: <client ip> <zu überprüfende adresse>\n", argv[0]);
+            exit (1);
+    }
+    host = argv[1];
+    printf("host: %s\n", host);
+    printf("ip: %s\n", ip_adress);
+    check_ip_1 (host, &ip_adress);
+    exit (0);
 }
