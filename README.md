@@ -19,6 +19,7 @@ return Values:
 1 - invalid subnetmask
 2 - invalid ip-address
 3 - invalid subnetmask && invalid ip-address
+4 - nicht im subnetz
 
 - Switch statement eventuell in .x Datei auslagern, mit unions oder so
 
