@@ -8,6 +8,8 @@
 #include <math.h>
 #include <arpa/inet.h>
 
+int parseIPv4(char* address, unsigned int* clientIP, uint32_t* subnetmask);
+
 int *
 checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
 {
@@ -16,8 +18,8 @@ checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
         uint32_t serverIP;
         uint32_t subnetmask;
         result = 0;
-        
-        printf("\n\nGot Client request:\t'Is %s in the server subnet?'\n\n", *argp);  
+
+        printf("\n\nGot Client request:\t'Is %s in the server subnet?'\n\n", *argp);
         result = parseIPv4(*argp, &clientIP, &subnetmask);
         serverIP = rqstp->rq_xprt->xp_raddr.sin_addr.s_addr;
 	printf("server IP: %s\n",inet_ntoa(rqstp->rq_xprt->xp_raddr.sin_addr));
@@ -40,7 +42,7 @@ checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
         }
         return &result;
 }
-// Validates Subnetmask. returns 0 on success. 1 on failure. 
+// Validates Subnetmask. returns 0 on success. 1 on failure.
 int validateSubnetmask(int ipv4[4], int maske[4],char* prefix){
         if(prefix == NULL){
             printf("no subnetmask! Please input the address 'x.x.x.x/subnetmask', x in range '0-255' and subnetmask in range '0-30'.\n");
@@ -63,7 +65,7 @@ int validateSubnetmask(int ipv4[4], int maske[4],char* prefix){
         printf("subnetmask = %d.%d.%d.%d is valid.\n",maske[0],maske[1],maske[2],maske[3]);
         return 0;
 }
-// Validates a IPv4 address. returns 0 on success. 2 on failure. 
+// Validates a IPv4 address. returns 0 on success. 2 on failure.
 int validateIPv4Address(char* address, int ipv4[4]){
         char *tmpStr;
         tmpStr = strtok(address,".");
@@ -79,7 +81,7 @@ int validateIPv4Address(char* address, int ipv4[4]){
             }
             tmpStr = strtok(NULL,".");
         }
-        
+
         printf("ip = %d.%d.%d.%d is valid!\n",ipv4[0],ipv4[1],ipv4[2],ipv4[3]);
         return 0;
 }
@@ -94,7 +96,7 @@ int parseIPv4(char* address, unsigned int* clientIP, uint32_t* subnetmask){
         //cuts the IPv4/Prefix into Parts.
         ip = strtok(address,"/");
 	prefix = strtok(NULL,"");
-        
+
         returnValue = validateIPv4Address(address, ipv4);
         returnValue += validateSubnetmask(ipv4, maske, prefix);
 
