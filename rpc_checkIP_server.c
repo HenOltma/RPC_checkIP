@@ -7,23 +7,25 @@
 #include "rpc_checkIP.h"
 #include <math.h>
 
+int parseIPv4(char* address, unsigned int* clientIP, uint32_t* subnetmask);
+
 int *
 checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
 {
-	static int  result;      
+	static int  result;
         char* ip;
         unsigned int clientIP;
         uint32_t serverIP;
         uint32_t subnetmask;
         int prefix;
         result = 0;
-        
-        printf("\n\nGot Client request:\t'Is %s in the server subnet?'\n\n", *argp);  
+
+        printf("\n\nGot Client request:\t'Is %s in the server subnet?'\n\n", *argp);
         result = parseIPv4(*argp, &clientIP, &subnetmask);
-        
+
 	return &result;
 }
-// Validates Subnetmask. returns 0 on success. 1 on failure. 
+// Validates Subnetmask. returns 0 on success. 1 on failure.
 int validateSubnetmask(int ipv4[4], int maske[4],char* prefix){
         if(prefix == NULL){
             printf("no subnetmask! Please input the address 'x.x.x.x/subnetmask', x in range '0-255' and subnetmask in range '0-30'.\n");
@@ -46,7 +48,7 @@ int validateSubnetmask(int ipv4[4], int maske[4],char* prefix){
         printf("subnetmask = %d.%d.%d.%d is valid.\n",maske[0],maske[1],maske[2],maske[3]);
         return 0;
 }
-// Validates a IPv4 address. returns 0 on success. 2 on failure. 
+// Validates a IPv4 address. returns 0 on success. 2 on failure.
 int validateIPv4Address(char* address, int ipv4[4]){
         char *tmpStr;
         tmpStr = strtok(address,".");
@@ -62,7 +64,7 @@ int validateIPv4Address(char* address, int ipv4[4]){
             }
             tmpStr = strtok(NULL,".");
         }
-        
+
         printf("ip = %d.%d.%d.%d is valid!\n",ipv4[0],ipv4[1],ipv4[2],ipv4[3]);
         return 0;
 }
@@ -77,17 +79,17 @@ int parseIPv4(char* address, unsigned int* clientIP, uint32_t* subnetmask){
         //cuts the IPv4/Prefix into Parts.
         ip = strtok(address,"/");
 	prefix = strtok(NULL,"");
-        
+
         printf("ip:\t%s\n", ip);
         printf("netmask:\t%s \n", prefix);
 
-        
+
             unsigned char s1=0, s2=0, s3=0, s4=0;
             printf("ip:\t%s\n", ip);
             sscanf(ip,"%hhu.%hhu.%hhu.%hhu",&s1,&s2,&s3,&s4);
             *clientIP = (s1<<24) | (s2<<16) | (s3<<8) | s4;
-            printf("clientIP - %u\n", *clientIP);        
-        
+            printf("clientIP - %u\n", *clientIP);
+
         returnValue = validateIPv4Address(address, ipv4);
         returnValue += validateSubnetmask(ipv4, maske, prefix);
 

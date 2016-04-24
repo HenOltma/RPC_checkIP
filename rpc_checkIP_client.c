@@ -1,11 +1,9 @@
 #include "rpc_checkIP.h"
 
 /**
- * Hier wird die konkrete Methode check_ip_1 implementiert
- * //TODO: ist glaub ich gar nicht nötig, es ist eher gefordert, die ip-adresse
- * 				 an den Server zu übermitteln und dessen Antwort zu verarbeiten
- * @param host ?
- * @param ip   ?
+ * Lässt check_ip_1 auf dem Server laufen
+ * @param host die ip vom client
+ * @param ip   Die zu testende ip-adresse
  */
 void check_ip_1(char *host, ip_str *ip) {
 	CLIENT  *clnt;
@@ -33,7 +31,31 @@ void check_ip_1(char *host, ip_str *ip) {
 
 	switch (*result_1) {
 		case 0:
-			printf("Alles Gut!\n");
+			printf("IP-Adresse ist gültig und befindet sich im Subnetz des Hosts\n");
+			break;
+
+		case 1:
+			printf("Die Subnetzmaske ist ungülitg\n");
+			break;
+
+		case 2:
+			printf("IP-Adresse ist ungültig\n");
+			break;
+
+		case 3:
+			printf("IP-Adresse und Subnetzmaske sind ungültig\n");
+			break;
+
+		case 4:
+			printf("IP-Adresse befindet sich nicht im Subnetz des Hosts\n");
+			break;
+
+		case 5:
+			printf("IP-Adresse ist die Broadcastadresse des Subnetzes\n");
+			break;
+
+		case 6:
+			printf("IP-Adresse ist die Routeradresse des Subnetzes\n");
 			break;
 
 		default:

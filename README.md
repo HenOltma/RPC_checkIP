@@ -15,11 +15,12 @@ to do list:
 
 return Values:
 
-0 - success
-1 - invalid subnetmask
-2 - invalid ip-address
-3 - invalid subnetmask && invalid ip-address
-4 - nicht im subnetz
+- 0 - success
+- 1 - invalid subnetmask
+- 2 - invalid ip-address
+- 3 - invalid subnetmask && invalid ip-address
+- 4 - nicht im subnetz
+- 5 - Adresse ist Broadcastadresse
+- 6 - Adresse ist Routeradresse
 
 - Switch statement eventuell in .x Datei auslagern, mit unions oder so
-
