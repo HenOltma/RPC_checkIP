@@ -23,11 +23,14 @@ checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
         result = parseIPv4(*argp, &clientIP, &subnetmask);
         serverIP = rqstp->rq_xprt->xp_raddr.sin_addr.s_addr;
 	printf("server IP: %s\n",inet_ntoa(rqstp->rq_xprt->xp_raddr.sin_addr));
+        struct in_addr netIP;
+        netIP.s_addr = clientIP & subnetmask;
+        printf("net IP: %s\n",inet_ntoa(netIP));
         if(result == 0){
             if(clientIP == serverIP){
                 printf("same server/client address");
             }
-            else if(clientIP == subnetmask){
+            else if(netIP.s_addr == clientIP){
                 printf("netaddress\n");
                 result = 5;
             }
@@ -55,12 +58,10 @@ int validateSubnetmask(int ipv4[4], int maske[4],char* prefix){
 	}
         int tmp1 = prefix_int/8;
         for(int i = 0; i < tmp1; i++){
-            maske[i] = ipv4[i];
+            maske[i] = 255;
         }
         for(int i = 0; i != prefix_int%8; i++){
-            if((ipv4[tmp1] - pow(2, 7-i)) > 0){
-                maske[tmp1] += pow(2, 7-i);
-            }
+            maske[tmp1] += pow(2, 7-i);
         }
         printf("subnetmask = %d.%d.%d.%d is valid.\n",maske[0],maske[1],maske[2],maske[3]);
         return 0;
@@ -92,7 +93,7 @@ int parseIPv4(char* address, unsigned int* clientIP, uint32_t* subnetmask){
         int ipv4[4] = {0,0,0,0};
         int maske[4] = {0,0,0,0};
         int returnValue;
-
+        uint32_t broadcastAddress;
         //cuts the IPv4/Prefix into Parts.
         ip = strtok(address,"/");
 	prefix = strtok(NULL,"");
@@ -103,6 +104,6 @@ int parseIPv4(char* address, unsigned int* clientIP, uint32_t* subnetmask){
         // wandelt ip-address int array zu 32-bit int um.
         *clientIP = ((unsigned char)ipv4[3] << 24) | ((unsigned char)ipv4[2] << 16) | ((unsigned char)ipv4[1] << 8) | (unsigned char)ipv4[0];
         *subnetmask = ((unsigned char)maske[3] << 24) | ((unsigned char)maske[2] << 16) | ((unsigned char)maske[1] << 8) | (unsigned char)maske[0];
-
+        
         return returnValue;
 }
