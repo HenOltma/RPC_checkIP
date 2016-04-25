@@ -1,0 +1,6 @@
+*.o
+*_clnt.c
+*_xdr.c
+*_svc.c
+
+rpc_checkIP.h
