@@ -32,11 +32,11 @@ checkip_1_svc(ip_str *argp, struct svc_req *rqstp)
             }
             else if(netIP.s_addr == clientIP){
                 printf("netaddress\n");
-                result = 5;
+                result = 6;
             }
             else if(clientIP == (clientIP | (~ subnetmask))){
                 printf("broadcast address\n");
-                result = 6;
+                result = 5;
             }
             else if(!((clientIP & subnetmask) == (serverIP & subnetmask))){
                 result = 4;
@@ -57,10 +57,11 @@ int validateSubnetmask(int ipv4[4], int maske[4],char* prefix){
             return 1;
 	}
         int tmp1 = prefix_int/8;
-        for(int i = 0; i < tmp1; i++){
+        int i;
+        for(i = 0; i < tmp1; i++){
             maske[i] = 255;
         }
-        for(int i = 0; i != prefix_int%8; i++){
+        for(i = 0; i != prefix_int%8; i++){
             maske[tmp1] += pow(2, 7-i);
         }
         printf("subnetmask = %d.%d.%d.%d is valid.\n",maske[0],maske[1],maske[2],maske[3]);
@@ -70,7 +71,8 @@ int validateSubnetmask(int ipv4[4], int maske[4],char* prefix){
 int validateIPv4Address(char* address, int ipv4[4]){
         char *tmpStr;
         tmpStr = strtok(address,".");
-        for(int i = 0; i < 4; i++){
+        int i;
+        for(i = 0; i < 4; i++){
             if(tmpStr == NULL){
                 printf("invalid address! Address have to be of the following syntax: 'x.x.x.x/netmask'. x has to be between 0 and 255. netmask has to be between 0 and 30.\n");
                 return 2;
